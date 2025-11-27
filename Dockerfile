@@ -9,7 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PATH="/root/.local/bin:${PATH}" \
     PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
-    # 手动安装
+    # install manually
     PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
 # ================ change inner Debian source ================
@@ -48,7 +48,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 COPY .env.example .env
 COPY . .
 
-# 确保运行时目录
+# ensuer program index
 RUN mkdir -p /ms-playwright logs final_reports \
              insight_engine_streamlit_reports \
              media_engine_streamlit_reports \
