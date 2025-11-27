@@ -1,9 +1,9 @@
-# syntax=docker/dockerfile:1.4          # 启用 --mount 缓存
+# syntax=docker/dockerfile:1.4          # active --mount cache
 FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/python:3.11-slim
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# ================ 环境变量 ================
+# ================ Env value ================
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
@@ -12,11 +12,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     # 手动安装
     PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
-# ================ 换国内 Debian 源 ================
+# ================ change inner Debian source ================
 RUN sed -i 's@http://deb.debian.org@http://mirrors.aliyun.com@g' /etc/apt/sources.list && \
     sed -i 's@http://security.debian.org@http://mirrors.aliyun.com@g' /etc/apt/sources.list
 
-# ================ 系统依赖（缓存挂载） ================
+# ================ sys request ================
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
@@ -27,7 +27,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         libasound2 libx11-xcb1 libxshmfence1 libgbm1 ffmpeg && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# ================ 安装 uv（国内高速下载） ================
+# ================ install uv ================
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip config set global.index-url https://mirrors.huaweicloud.com/repository/pypi/simple && \
     curl -LsSf --retry 3 --retry-delay 2 --proto '=https' --proto-redir '=https' --tlsv1.2 \
@@ -35,16 +35,16 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 WORKDIR /app
 
-# ================ Python 依赖（缓存挂载） ================
+# ================ Python request ================
 COPY requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
     uv pip install --system -r requirements.txt
 
-# ================ 安装 Chromium（缓存浏览器） ================
+# ================ install Chromium ================
 RUN --mount=type=cache,target=/root/.cache/pip \
     python -m playwright install chromium
 
-# ================ 业务代码 ================
+# ================ task code ================
 COPY .env.example .env
 COPY . .
 
